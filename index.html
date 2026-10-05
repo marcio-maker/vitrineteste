@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>HairOS · referência · QR · simulação IA</title>
+  <meta name="theme-color" content="#0a0808">
+  <meta name="description"
+    content="HairOS — provador virtual de cortes e colorações com simulação IA e curadoria de produtos.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0808;
+      --bg-card: #1a1612;
+      --text: #f5f0ea;
+      --text-sec: #ddd0c0;
+      --text-muted: #a89e93;
+      --gold: #d4b07a;
+      --gold-light: #ecdcb0;
+      --gold-glow: rgba(212, 176, 122, .14);
+      --border: rgba(212, 176, 122, .10);
+      --border-gold: rgba(212, 176, 122, .28);
+      --radius: 14px;
+      --radius-lg: 20px;
+      --ease-luxury: cubic-bezier(.23, 1, .32, 1);
+      --ease-bounce: cubic-bezier(.34, 1.56, .64, 1);
+      --shadow: 0 8px 32px rgba(0, 0, 0, .6);
+      --focus-ring: 0 0 0 3px rgba(212, 176, 122, 0.5);
+      --ok: #a8d8a8;
+    }
+
+    html,
+    body {
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+
+    body {
+      padding: 1rem 0.75rem 2rem;
+      position: relative;
+      isolation: isolate;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: -20%;
+      z-index: -1;
+      background:
+        radial-gradient(ellipse at 20% 10%, rgba(212, 176, 122, .07), transparent 55%),
+        radial-gradient(ellipse at 80% 90%, rgba(212, 176, 122, .05), transparent 55%);
+      pointer-events: none;
+    }
+
+    .app {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    * {
+      scrollbar-width: none;
+    }
+
+    *::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+
+    .header {
+      margin-bottom: 1.2rem;
+      text-align: center;
+      padding: 0.5rem 0 1rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      animation: headerFade 1.1s var(--ease-luxury) both;
+    }
+
+    @keyframes headerFade {
+      0% {
+        opacity: 0;
+        transform: translateY(-14px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(110deg,
+          #f5f0ea 0%, #f5f0ea 30%,
+          var(--gold-light) 45%, var(--gold) 50%, var(--gold-light) 55%,
+          #f5f0ea 70%, #f5f0ea 100%);
+      background-size: 250% 100%;
+      background-position: 100% 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 7s ease-in-out 1.2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 100% 0;
+      }
+
+      30% {
+        background-position: -50% 0;
+      }
+
+      100% {
+        background-position: -50% 0;
+      }
+    }
+
+    .header h1 span {
+      color: var(--gold);
+      -webkit-text-fill-color: var(--gold);
+    }
+
+    .header p {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 300;
+      opacity: 0.7;
+      min-height: 1em;
+      transition: opacity .3s ease;
+    }
+
+    .filtros {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0 -0.75rem 1rem;
+      padding: 0.55rem 0.75rem;
+      background: rgba(10, 8, 8, .85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      animation: headerFade 1.1s var(--ease-luxury) .15s both;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    .filtros::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      pointer-events: none;
+    }
+
+    .mini-logo {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      flex-shrink: 0;
+      padding: 0 0.6rem 0 0.15rem;
+      border-right: 1px solid var(--border-gold);
+      margin-right: 0.35rem;
+      text-decoration: none;
+      transition: color .3s ease, transform .3s var(--ease-luxury);
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .mini-logo:hover {
+      color: var(--gold-light);
+      transform: scale(1.05);
+    }
+
+    .mini-logo span {
+      color: var(--gold);
+    }
+
+    .filtros-scroll {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.15rem;
+      scrollbar-width: none;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+    }
+
+    .filtros-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filtro-btn {
+      flex-shrink: 0;
+      padding: 0.5rem 1.1rem;
+      border-radius: 40px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .35s var(--ease-luxury);
+      white-space: nowrap;
+    }
+
+    .filtro-btn:hover,
+    .filtro-btn:focus-visible {
+      border-color: var(--gold);
+      color: var(--text);
+      outline: var(--focus-ring);
+      transform: translateY(-1px);
+    }
+
+    .filtro-btn:active {
+      transform: translateY(0) scale(0.97);
+    }
+
+    .filtro-btn.active {
+      background: var(--gold);
+      color: #1b1209;
+      border-color: var(--gold);
+      font-weight: 600;
+      box-shadow: 0 0 0 1px var(--gold-light), 0 6px 20px rgba(212, 176, 122, .3);
+      animation: filtroActivate .5s var(--ease-bounce);
+    }
+
+    @keyframes filtroActivate {
+      0% {
+        transform: scale(1);
+      }
+
+      40% {
+        transform: scale(1.08);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .gallery {
+      column-count: 2;
+      column-gap: 10px;
+    }
+
+    .hair-card {
+      break-inside: avoid;
+      margin-bottom: 10px;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: transform .5s var(--ease-luxury), border-color .4s ease, box-shadow .5s ease;
+      position: relative;
+      animation: cardEnter .8s var(--ease-luxury) both;
+      will-change: transform;
+    }
+
+    @keyframes cardEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(28px) scale(.94);
+      }
+
+      60% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .hair-card:hover,
+    .hair-card:focus-within {
+      border-color: var(--border-gold);
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, .55), 0 0 40px rgba(212, 176, 122, .12);
+      z-index: 5;
+    }
+
+    .hair-card:active {
+      transform: translateY(-2px) scale(0.99);
+      transition-duration: .15s;
+    }
+
+    .hair-card-img-wrap {
+      position: relative;
+      overflow: hidden;
+      background: #0e0b09;
+    }
+
+    .hair-card img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center top;
+      transition: transform .9s cubic-bezier(.25, .46, .45, .94), opacity .6s ease;
+    }
+
+    .hair-card img.h-md {
+      height: 200px;
+    }
+
+    .hair-card img.h-lg {
+      height: 260px;
+    }
+
+    .hair-card img.h-xl {
+      height: 320px;
+    }
+
+    .hair-card:hover img {
+      transform: scale(1.08);
+    }
+
+    .hair-card img.trocando {
+      opacity: 0.25;
+    }
+
+    .hair-card-title {
+      position: absolute;
+      bottom: 0.7rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(14px);
+      background: rgba(10, 8, 8, .85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-gold);
+      padding: 5px 14px;
+      border-radius: 24px;
+      transition: all .45s var(--ease-luxury);
+      white-space: nowrap;
+      opacity: 0;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text);
+      pointer-events: none;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hair-card:hover .hair-card-title,
+    .hair-card:focus-within .hair-card-title {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      border-color: var(--gold);
+      background: rgba(10, 8, 8, .95);
+    }
+
+    .hair-card-badge-shop {
+      position: absolute;
+      bottom: 0.7rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(14px);
+      background: rgba(212, 176, 122, .92);
+      color: #1b1209;
+      padding: 5px 14px;
+      border-radius: 24px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      opacity: 0;
+      transition: all .45s var(--ease-luxury);
+      pointer-events: none;
+      border: 1px solid var(--gold-light);
+    }
+
+    .hair-card:hover .hair-card-badge-shop,
+    .hair-card:focus-within .hair-card-badge-shop {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 0;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity .4s ease, visibility .4s;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: var(--bg);
+      width: 100%;
+      max-width: 1280px;
+      min-height: 100vh;
+      padding: 0 0.75rem 3rem;
+      position: relative;
+      transform: translateY(24px) scale(.98);
+      opacity: 0;
+      transition: transform .55s var(--ease-luxury), opacity .45s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .modal-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.9rem 0.75rem;
+      margin: 0 -0.75rem 1.2rem;
+      background: rgba(10, 8, 8, .82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    .modal-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0.75rem;
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      pointer-events: none;
+    }
+
+    .modal-back {
+      background: rgba(201, 169, 110, .08);
+      border: 1px solid var(--border-gold);
+      color: var(--gold);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .35s var(--ease-luxury);
+      flex-shrink: 0;
+      padding: 0;
+    }
+
+    .modal-back:hover {
+      background: var(--gold);
+      color: #1b1209;
+      transform: translateX(-4px) scale(1.05);
+    }
+
+    .modal-header-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .modal-header-cat {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--gold);
+      font-weight: 600;
+      opacity: 0.85;
+    }
+
+    .modal-header-title {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .modal-header-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      margin-top: 0.1rem;
+    }
+
+    .modal-header-count {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      background: rgba(212, 176, 122, .1);
+      border: 1px solid var(--border-gold);
+      padding: 4px 10px;
+      border-radius: 40px;
+      flex-shrink: 0;
+      font-weight: 500;
+    }
+
+    .modal-section-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--gold);
+      margin-bottom: 0.8rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .variacoes-masonry {
+      column-count: 2;
+      column-gap: 10px;
+    }
+
+    .variacao-card {
+      break-inside: avoid;
+      margin-bottom: 10px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: transform .45s var(--ease-luxury), border-color .35s ease, box-shadow .45s ease;
+      position: relative;
+      animation: variacaoEnter .7s var(--ease-luxury) both;
+    }
+
+    @keyframes variacaoEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(20px) scale(.94);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .variacao-card:hover,
+    .variacao-card:focus-within {
+      border-color: var(--border-gold);
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .5), 0 0 30px rgba(212, 176, 122, .1);
+      z-index: 5;
+    }
+
+    .variacao-card img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center top;
+      background: #0e0b09;
+      transition: transform .7s cubic-bezier(.25, .46, .45, .94);
+    }
+
+    .variacao-card img.h-md {
+      height: 180px;
+    }
+
+    .variacao-card img.h-lg {
+      height: 230px;
+    }
+
+    .variacao-card img.h-xl {
+      height: 290px;
+    }
+
+    .variacao-card:hover img {
+      transform: scale(1.06);
+    }
+
+    /* ===== BOTÃO QR — CENTRO INFERIOR ===== */
+    .btn-qr-float {
+      position: absolute;
+      bottom: 0.75rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(10, 8, 8, .65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(212, 176, 122, .35);
+      color: var(--gold);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      transition: all .3s var(--ease-luxury);
+      padding: 0;
+      line-height: 1;
+      opacity: 0.7;
+    }
+
+    .btn-qr-float:hover,
+    .btn-qr-float:focus-visible,
+    .btn-qr-float:active {
+      opacity: 1;
+      background: var(--gold);
+      color: #1b1209;
+      border-color: var(--gold);
+      transform: translateX(-50%) scale(1.1);
+      outline: none;
+    }
+
+    .card-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem 1.2rem 1.5rem;
+      margin-top: 0.5rem;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: var(--shadow);
+      animation: cardDetailEnter .8s var(--ease-luxury) both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes cardDetailEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(32px) scale(.96);
+      }
+
+      60% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .bloco-ref {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1.1rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #0e0b09;
+    }
+
+    .bloco-ref .card-img-wrap {
+      position: relative;
+      margin-bottom: 0;
+      border-radius: 0;
+      border: none;
+      cursor: zoom-in;
+    }
+
+    .card-hair-img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background: #0e0b09;
+      display: block;
+      transition: opacity .3s ease;
+    }
+
+    .prompt-integrado {
+      padding: 0.9rem 1rem 1rem;
+      background: rgba(0, 0, 0, .35);
+      border-top: 1px solid var(--border-gold);
+      font-size: 0.76rem;
+      color: var(--text-sec);
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      line-height: 1.5;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .prompt-integrado-titulo {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      opacity: 0.85;
+      font-style: normal;
+    }
+
+    .card-hair-name {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+      line-height: 1.15;
+    }
+
+    .card-hair-desc {
+      font-size: 0.88rem;
+      color: var(--text-sec);
+      margin-bottom: 1.3rem;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .fase2-titulo {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--gold);
+      margin: 1.3rem 0 0.7rem;
+      font-weight: 500;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    .galeria-loja {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 0.9rem 0 1.1rem;
+      flex-wrap: wrap;
+    }
+
+    .galeria-loja img {
+      width: 54px;
+      height: 54px;
+      border-radius: 10px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all .35s var(--ease-luxury);
+      background: #0e0b09;
+      opacity: 0.6;
+    }
+
+    .galeria-loja img:hover {
+      opacity: 1;
+      border-color: var(--border-gold);
+      transform: scale(1.08);
+    }
+
+    .galeria-loja img.active {
+      border-color: var(--gold);
+      opacity: 1;
+      box-shadow: 0 0 0 3px var(--gold-glow);
+      transform: scale(1.06);
+    }
+
+    .btn-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 1rem 1.2rem;
+      border-radius: 60px;
+      border: 1px solid var(--gold);
+      background: var(--gold);
+      color: #1b1209;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-bottom: 0.6rem;
+      transition: all .4s var(--ease-luxury);
+      box-shadow: 0 8px 24px rgba(212, 176, 122, .2);
+    }
+
+    .btn-action:hover {
+      background: var(--gold-light);
+      border-color: var(--gold-light);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(212, 176, 122, .4);
+    }
+
+    .btn-action:active {
+      transform: translateY(-1px) scale(.98);
+    }
+
+    @keyframes pulseGold {
+
+      0%,
+      100% {
+        box-shadow: 0 8px 24px rgba(212, 176, 122, .2), 0 0 0 0 rgba(212, 176, 122, .45);
+      }
+
+      50% {
+        box-shadow: 0 8px 24px rgba(212, 176, 122, .3), 0 0 0 10px rgba(212, 176, 122, 0);
+      }
+    }
+
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border-radius: 60px;
+      background: transparent;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-decoration: none;
+      margin-bottom: 0.6rem;
+      cursor: pointer;
+      transition: all .4s var(--ease-luxury);
+    }
+
+    .btn-secondary:hover {
+      background: var(--gold-glow);
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    .etapa-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      font-size: 0.68rem;
+      font-weight: 700;
+      margin-right: 0.5rem;
+      opacity: 0.55;
+      transition: all .4s var(--ease-luxury);
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .btn-action.etapa-ativa,
+    .btn-secondary.etapa-ativa {
+      animation: pulseGold 2.4s ease-in-out infinite;
+    }
+
+    .btn-action.etapa-ativa .etapa-num,
+    .btn-secondary.etapa-ativa .etapa-num {
+      opacity: 1;
+      background: var(--gold);
+      color: #1b1209;
+      border-color: var(--gold);
+    }
+
+    .btn-action.etapa-concluida,
+    .btn-secondary.etapa-concluida {
+      opacity: 0.75;
+      animation: none;
+    }
+
+    .btn-action.etapa-concluida .etapa-num,
+    .btn-secondary.etapa-concluida .etapa-num {
+      opacity: 0.95;
+      background: transparent;
+      color: var(--ok);
+      border-color: var(--ok);
+    }
+
+    .btn-action.etapa-concluida .etapa-num span,
+    .btn-secondary.etapa-concluida .etapa-num span {
+      display: none;
+    }
+
+    .btn-action.etapa-concluida .etapa-num::after,
+    .btn-secondary.etapa-concluida .etapa-num::after {
+      content: '✓';
+      font-size: 0.72rem;
+    }
+
+    .etapa-dica {
+      font-size: 0.72rem;
+      color: var(--gold-light);
+      text-align: center;
+      font-style: italic;
+      font-weight: 300;
+      margin: -0.1rem 0 0.9rem;
+      min-height: 1.1em;
+      opacity: 0;
+      transition: opacity .4s ease;
+      letter-spacing: 0.02em;
+    }
+
+    .etapa-dica.visivel {
+      opacity: 0.8;
+    }
+
+    .btn-buy {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 1.1rem 1.2rem;
+      border-radius: 60px;
+      border: 1px solid var(--gold);
+      background: var(--gold);
+      color: #1b1209;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      margin-bottom: 0.6rem;
+      transition: all .4s var(--ease-luxury);
+      box-shadow: 0 8px 24px rgba(212, 176, 122, .25);
+    }
+
+    .btn-buy:hover {
+      background: var(--gold-light);
+      border-color: var(--gold-light);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 44px rgba(212, 176, 122, .45);
+    }
+
+    .btn-buy .icon {
+      font-size: 1.1rem;
+    }
+
+    .btn-buy-hint {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 1.2rem;
+      font-weight: 300;
+      font-style: italic;
+    }
+
+    .qr-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, .3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+    }
+
+    .qr-wrap #qrcode,
+    .qr-wrap #qrLoja {
+      background: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      line-height: 0;
+      box-shadow: 0 0 24px rgba(212, 176, 122, .12);
+    }
+
+    .qr-wrap #qrcode img,
+    .qr-wrap #qrcode canvas,
+    .qr-wrap #qrLoja img,
+    .qr-wrap #qrLoja canvas {
+      display: block;
+      width: 140px !important;
+      height: 140px !important;
+    }
+
+    .qr-hint {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-align: center;
+      font-weight: 300;
+      letter-spacing: 0.04em;
+    }
+
+    .qr-expansivel {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height .55s var(--ease-luxury), opacity .45s ease, margin .45s ease;
+      margin-bottom: 0;
+    }
+
+    .qr-expansivel.aberto {
+      max-height: 340px;
+      opacity: 1;
+      margin-bottom: 1.2rem;
+    }
+
+    .qr-expansivel .qr-wrap {
+      margin-bottom: 0;
+    }
+
+    .instructions {
+      background: rgba(0, 0, 0, .3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1rem 1rem 1.2rem;
+      margin-bottom: 1rem;
+      font-size: 0.82rem;
+      color: var(--text-sec);
+      counter-reset: step;
+      font-weight: 300;
+    }
+
+    .instructions li {
+      list-style: none;
+      margin-bottom: 0.55rem;
+      padding-left: 1.9rem;
+      position: relative;
+      counter-increment: step;
+      line-height: 1.5;
+    }
+
+    .instructions li:last-child {
+      margin-bottom: 0;
+    }
+
+    .instructions li strong {
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .instructions li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1.35rem;
+      height: 1.35rem;
+      background: var(--gold);
+      color: #1b1209;
+      border-radius: 50%;
+      font-size: 0.68rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .products-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--gold);
+      margin: 1.6rem 0 0.7rem;
+      font-weight: 500;
+      text-align: center;
+      opacity: 0.75;
+    }
+
+    .products-sub {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: -0.4rem;
+      margin-bottom: 0.8rem;
+      font-weight: 300;
+      font-style: italic;
+    }
+
+    .product-item {
+      display: flex;
+      gap: 0.7rem;
+      align-items: center;
+      padding: 0.7rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: inherit;
+      transition: all .4s var(--ease-luxury);
+    }
+
+    .product-item:last-child {
+      border-bottom: none;
+    }
+
+    .product-item:hover {
+      background: rgba(212, 176, 122, .04);
+      padding-left: 0.9rem;
+      padding-right: 0.3rem;
+      border-radius: 8px;
+    }
+
+    .product-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: #0e0b09;
+      border: 1px solid var(--border);
+      transition: transform .4s var(--ease-bounce);
+    }
+
+    .product-item:hover .product-thumb {
+      transform: scale(1.06) rotate(-2deg);
+    }
+
+    .product-thumb.placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--gold);
+      background: rgba(212, 176, 122, .08);
+    }
+
+    .product-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .product-info h4 {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .product-info p {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+      font-weight: 300;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .product-link-icon {
+      font-size: 0.85rem;
+      background: rgba(212, 176, 122, .1);
+      border: 1px solid var(--border-gold);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--gold);
+      transition: all .4s var(--ease-bounce);
+    }
+
+    .product-item:hover .product-link-icon {
+      background: var(--gold);
+      color: #1b1209;
+      transform: scale(1.15) rotate(45deg);
+    }
+
+    .pos-sim-block {
+      margin-top: 1.4rem;
+      padding: 1.1rem 1rem 1rem;
+      background: rgba(212, 176, 122, .05);
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius);
+      animation: cardDetailEnter .7s var(--ease-luxury) both;
+    }
+
+    .pos-sim-title {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--gold-light);
+      text-align: center;
+      margin-bottom: 0.3rem;
+    }
+
+    .pos-sim-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 0.8rem;
+      font-weight: 300;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .footer-note {
+      margin-top: 2rem;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-align: center;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.35;
+      font-weight: 300;
+    }
+
+    .loading-msg {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 300;
+      font-style: italic;
+      font-family: 'Playfair Display', serif;
+      opacity: 0.7;
+      column-span: all;
+    }
+
+    .zoom-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .97);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity .35s ease, visibility .35s;
+      touch-action: none;
+      overscroll-behavior: contain;
+    }
+
+    .zoom-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .zoom-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .zoom-stage img {
+      max-width: 100vw;
+      max-height: 100vh;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-user-drag: none;
+      transform-origin: center center;
+      will-change: transform;
+      transition: transform .08s linear;
+    }
+
+    .zoom-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(10, 8, 8, .8);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: all .3s var(--ease-luxury);
+      padding: 0;
+      line-height: 1;
+    }
+
+    .zoom-close:hover {
+      background: var(--gold);
+      color: #1b1209;
+      transform: scale(1.08) rotate(90deg);
+    }
+
+    .zoom-hint {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 8, 8, .8);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-gold);
+      padding: 8px 16px;
+      border-radius: 24px;
+      font-size: 0.72rem;
+      color: var(--gold-light);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 10;
+      animation: hintPulse 2.5s ease-in-out infinite;
+      font-family: 'Inter', sans-serif;
+    }
+
+    @keyframes hintPulse {
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(-3px);
+      }
+    }
+
+    @media (min-width: 600px) {
+      body {
+        padding: 1.4rem 1rem 2.4rem;
+      }
+
+      .filtros {
+        margin: 0 -1rem 1rem;
+        padding: 0.6rem 1rem;
+      }
+
+      .gallery {
+        column-count: 3;
+        column-gap: 14px;
+      }
+
+      .hair-card {
+        margin-bottom: 14px;
+      }
+
+      .variacoes-masonry {
+        column-count: 3;
+        column-gap: 14px;
+      }
+
+      .variacao-card {
+        margin-bottom: 14px;
+      }
+
+      .header h1 {
+        font-size: 2.1rem;
+      }
+
+      .hair-card img.h-md {
+        height: 240px;
+      }
+
+      .hair-card img.h-lg {
+        height: 300px;
+      }
+
+      .hair-card img.h-xl {
+        height: 360px;
+      }
+
+      .variacao-card img.h-md {
+        height: 220px;
+      }
+
+      .variacao-card img.h-lg {
+        height: 280px;
+      }
+
+      .variacao-card img.h-xl {
+        height: 340px;
+      }
+
+      .modal-content {
+        padding: 0 1.2rem 3rem;
+      }
+
+      .modal-header {
+        padding: 0.9rem 1.2rem;
+        margin: 0 -1.2rem 1.2rem;
+      }
+    }
+
+    @media (min-width: 900px) {
+      body {
+        padding: 1.8rem 1.4rem 3rem;
+      }
+
+      .filtros {
+        margin: 0 -1.4rem 1rem;
+        padding: 0.6rem 1.4rem;
+      }
+
+      .gallery {
+        column-count: 4;
+        column-gap: 18px;
+      }
+
+      .hair-card {
+        margin-bottom: 18px;
+      }
+
+      .variacoes-masonry {
+        column-count: 4;
+        column-gap: 18px;
+      }
+
+      .variacao-card {
+        margin-bottom: 18px;
+      }
+
+      .header h1 {
+        font-size: 2.4rem;
+      }
+
+      .hair-card img.h-md {
+        height: 260px;
+      }
+
+      .hair-card img.h-lg {
+        height: 320px;
+      }
+
+      .hair-card img.h-xl {
+        height: 380px;
+      }
+
+      .variacao-card img.h-md {
+        height: 240px;
+      }
+
+      .variacao-card img.h-lg {
+        height: 300px;
+      }
+
+      .variacao-card img.h-xl {
+        height: 360px;
+      }
+
+      .modal-content {
+        padding: 0 1.4rem 3rem;
+      }
+
+      .modal-header {
+        padding: 0.9rem 1.4rem;
+        margin: 0 -1.4rem 1.2rem;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .header h1 {
+        font-size: 1.6rem;
+      }
+
+      .modal-header-title {
+        font-size: 1.1rem;
+      }
+
+      .card-hair-name {
+        font-size: 1.35rem;
+      }
+
+      .instructions li {
+        font-size: 0.78rem;
+      }
+
+      .gallery {
+        column-count: 2;
+        column-gap: 8px;
+      }
+
+      .hair-card {
+        margin-bottom: 8px;
+      }
+
+      .variacoes-masonry {
+        column-count: 2;
+        column-gap: 8px;
+      }
+
+      .variacao-card {
+        margin-bottom: 8px;
+      }
+
+      .hair-card img.h-md {
+        height: 180px;
+      }
+
+      .hair-card img.h-lg {
+        height: 220px;
+      }
+
+      .hair-card img.h-xl {
+        height: 270px;
+      }
+
+      .variacao-card img.h-md {
+        height: 160px;
+      }
+
+      .variacao-card img.h-lg {
+        height: 200px;
+      }
+
+      .variacao-card img.h-xl {
+        height: 240px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>Hair<span>OS</span></h1>
+      <p id="headerSub">todos · referência · QR · simulação IA</p>
+    </header>
+
+    <div class="filtros" id="filtros">
+      <a class="mini-logo" href="#" aria-label="HairOS" id="miniLogoBtn">H<span>.</span></a>
+      <div class="filtros-scroll" id="filtrosScroll">
+        <button class="filtro-btn active" data-filtro="todos">Todos</button>
+        <button class="filtro-btn" data-filtro="corte">Cortes</button>
+        <button class="filtro-btn" data-filtro="coloracao">Colorações</button>
+        <button class="filtro-btn" data-filtro="produto">Produtos</button>
+        <button class="filtro-btn" data-filtro="kit">Kits</button>
+        <button class="filtro-btn" data-filtro="ferramentas">Ferramentas</button>
+      </div>
+    </div>
+
+    <div class="gallery" id="gallery">
+      <div class="loading-msg">Carregando do HairOS...</div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal-content" id="modalContent">
+        <div class="modal-header">
+          <button class="modal-back" id="modalBackBtn" aria-label="Voltar">←</button>
+          <div class="modal-header-info">
+            <div class="modal-header-cat" id="modalHeaderCat">—</div>
+            <div class="modal-header-title" id="modalHeaderTitle">—</div>
+            <div class="modal-header-sub" id="modalHeaderSub">—</div>
+          </div>
+          <div class="modal-header-count" id="modalHeaderCount">0 refs</div>
+        </div>
+
+        <div class="modal-section-label" id="modalSectionLabel">
+          Escolha uma referência
+        </div>
+        <div class="variacoes-masonry" id="modalVariacoes"></div>
+
+        <div id="cardArea" class="hidden"></div>
+      </div>
+    </div>
+
+    <div class="footer-note">Ponte HairOS · integrada com data.js</div>
+  </div>
+
+  <div class="zoom-overlay" id="zoomOverlay">
+    <button class="zoom-close" id="zoomClose" aria-label="Fechar zoom">✕</button>
+    <div class="zoom-stage" id="zoomStage">
+      <img id="zoomImg" src="" alt="Zoom">
+    </div>
+    <div class="zoom-hint">Pinça para ampliar · Duplo toque para voltar</div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <script>
+    // ===== CONFIG =====
+    const URL_PUBLICA_MANUAL = '';
+    const ALTURAS = ['h-md', 'h-lg', 'h-xl'];
+    const IMG_FALLBACK = 'https://i.pinimg.com/736x/1e/59/3c/1e593c46f134db1bc0233b96d12d555f.jpg';
+    const INTERVALO_MIN = 10000;
+    const INTERVALO_MAX = 15000;
+
+    const SUBTITULOS = {
+      todos: 'todos · referência · QR · simulação IA',
+      corte: 'referência · QR · simulação IA',
+      coloracao: 'referência · QR · simulação IA',
+      produto: 'curadoria · compra direta',
+      kit: 'curadoria · compra direta',
+      ferramentas: 'curadoria · compra direta'
+    };
+
+    const LABELS = {
+      corte: 'Corte',
+      coloracao: 'Coloração',
+      produto: 'Produto',
+      kit: 'Kit',
+      ferramentas: 'Ferramenta'
+    };
+
+    const CATS_SIMULACAO = ['corte', 'coloracao'];
+
+    function getAlturaAleatoria() {
+      return ALTURAS[Math.floor(Math.random() * ALTURAS.length)];
+    }
+
+    function shuffleArray(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function intervaloAleatorio() {
+      return INTERVALO_MIN + Math.random() * (INTERVALO_MAX - INTERVALO_MIN);
+    }
+
+    // ===== ZOOM =====
+    const zoomOverlay = document.getElementById('zoomOverlay');
+    const zoomStage = document.getElementById('zoomStage');
+    const zoomImg = document.getElementById('zoomImg');
+    const zoomClose = document.getElementById('zoomClose');
+
+    let zoomScale = 1, zoomX = 0, zoomY = 0;
+    let startX = 0, startY = 0, startDist = 0, startScale = 1;
+    let isPanning = false, lastTap = 0, pinchActive = false;
+
+    function aplicarTransform() {
+      zoomImg.style.transform = `translate(${zoomX}px, ${zoomY}px) scale(${zoomScale})`;
+    }
+
+    function resetZoom() { zoomScale = 1; zoomX = 0; zoomY = 0; aplicarTransform(); }
+
+    function openZoom(src, alt) {
+      zoomImg.src = src;
+      zoomImg.alt = alt || 'Zoom';
+      resetZoom();
+      zoomOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeZoom() {
+      zoomOverlay.classList.remove('active');
+      if (!modalOverlay.classList.contains('active')) {
+        document.body.style.overflow = '';
+      }
+      setTimeout(() => { zoomImg.src = ''; resetZoom(); }, 300);
+    }
+
+    if (zoomClose) zoomClose.addEventListener('click', closeZoom);
+    if (zoomOverlay) {
+      zoomOverlay.addEventListener('click', (e) => {
+        if (e.target === zoomOverlay || e.target === zoomStage) closeZoom();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (zoomOverlay.classList.contains('active')) { closeZoom(); return; }
+    });
+
+    if (zoomStage) {
+      zoomStage.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          pinchActive = true;
+          startDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          startScale = zoomScale;
+        } else if (e.touches.length === 1) {
+          pinchActive = false;
+          isPanning = true;
+          startX = e.touches[0].clientX - zoomX;
+          startY = e.touches[0].clientY - zoomY;
+
+          const now = Date.now();
+          if (now - lastTap < 300) {
+            if (zoomScale > 1.05) resetZoom();
+            else { zoomScale = 2.2; aplicarTransform(); }
+            lastTap = 0;
+            isPanning = false;
+            return;
+          }
+          lastTap = now;
+        }
+      }, { passive: true });
+
+      zoomStage.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && pinchActive) {
+          e.preventDefault();
+          const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          const factor = dist / startDist;
+          zoomScale = Math.min(Math.max(startScale * factor, 1), 5);
+          aplicarTransform();
+        } else if (e.touches.length === 1 && isPanning && zoomScale > 1) {
+          e.preventDefault();
+          zoomX = e.touches[0].clientX - startX;
+          zoomY = e.touches[0].clientY - startY;
+          aplicarTransform();
+        }
+      }, { passive: false });
+
+      zoomStage.addEventListener('touchend', (e) => {
+        if (e.touches.length === 0) {
+          pinchActive = false; isPanning = false;
+          if (zoomScale < 1.05) resetZoom();
+        }
+      }, { passive: true });
+    }
+
+    // ===== ITENS =====
+    function extrairItens() {
+      const itens = [];
+      if (typeof styleData === 'undefined') {
+        console.error('styleData não encontrado.');
+        return [];
+      }
+
+      Object.values(styleData).forEach(card => {
+        const variantes = [];
+        const vistos = {};
+        (card.variants || []).forEach(v => {
+          const url = (typeof v === 'object' && v !== null) ? v.img : v;
+          if (url && !vistos[url]) { vistos[url] = true; variantes.push(url); }
+        });
+        if (card.img && !vistos[card.img]) variantes.unshift(card.img);
+
+        itens.push({
+          id: card.id,
+          nome: card.corte,
+          titulo: card.title,
+          descricao: card.desc,
+          imagem: card.img,
+          variantes: variantes.length ? variantes : [card.img],
+          categoria: card.categoria,
+          altura: card.altura || getAlturaAleatoria(),
+          prompt: card.prompt || ''
+        });
+      });
+
+      return itens;
+    }
+
+    const ITENS = extrairItens();
+    console.log('✅ Itens carregados:', ITENS.length);
+
+    const ITENS_POR_CATEGORIA = {};
+    ITENS.forEach(i => {
+      if (!ITENS_POR_CATEGORIA[i.categoria]) ITENS_POR_CATEGORIA[i.categoria] = [];
+      ITENS_POR_CATEGORIA[i.categoria].push(i);
+    });
+
+    // ===== PROMPT =====
+    function gerarPrompt(item) {
+      const isColor = item.categoria === 'coloracao';
+      const tipoLabel = isColor ? 'coloração' : 'corte';
+
+      const blocoEspecifico = (item.prompt && item.prompt.trim())
+        ? item.prompt.trim()
+        : `Aplique ${isColor ? 'a coloração' : 'o corte'} da IMAGEM 2 respeitando fielmente comprimento, camadas, textura, direção do caimento, volume e tom.`;
+
+      return `Você vai receber DUAS imagens nesta conversa:
+
+IMAGEM 1: foto de uma pessoa (a cliente).
+IMAGEM 2: imagem de referência de ${tipoLabel} "${item.nome}" (${item.titulo}).
+
+Sua tarefa: aplicar ${isColor ? 'a cor e a técnica da' : 'o corte da'} IMAGEM 2 na pessoa da IMAGEM 1, gerando uma simulação fotorrealista.
+
+CARACTERÍSTICAS OBRIGATÓRIAS (extraídas da referência):
+${blocoEspecifico}
+
+REGRAS OBRIGATÓRIAS:
+- Preserve rigorosamente o rosto, a identidade, as características faciais, as proporções e a expressão da pessoa da IMAGEM 1.
+- Mantenha a iluminação, o tom de pele e o fundo originais da IMAGEM 1.
+- O resultado deve parecer uma FOTO REAL, nunca uma montagem, peruca ou colagem artificial.
+- Integre o cabelo naturalmente com o couro cabeludo e a pele, com sombras e transições suaves.
+- Não altere roupas, expressão, fundo ou qualquer outro elemento da IMAGEM 1.
+- A saída deve ser uma única imagem fotorrealista e natural.
+
+Se as duas imagens não forem enviadas, peça ao usuário para anexá-las antes de gerar o resultado.`;
+    }
+
+    // ===== AFILIADOS =====
+    const AFILIADOS = (typeof kitsAfiliados !== 'undefined') ? kitsAfiliados : [];
+    let rotacaoIndex = 0;
+
+    function produtosParaCard(item, quantidade) {
+      if (AFILIADOS.length === 0) return [];
+      const qtd = quantidade || 3;
+
+      let mixCategorias;
+      if (item.categoria === 'coloracao') mixCategorias = ['coloracao', 'coloracao', 'cuidados'];
+      else if (item.categoria === 'ferramentas') mixCategorias = ['ferramentas', 'ferramentas', 'cuidados'];
+      else mixCategorias = ['coloracao', 'cuidados', 'cuidados'];
+
+      const escolhidos = [];
+      const usados = {};
+
+      for (let i = 0; i < qtd; i++) {
+        const catDesejada = mixCategorias[i % mixCategorias.length];
+        const candidatos = AFILIADOS.filter(k => k.categoria === catDesejada);
+        if (candidatos.length === 0) continue;
+
+        let escolhido = null;
+        for (let tent = 0; tent < candidatos.length; tent++) {
+          const idx = (rotacaoIndex + tent) % candidatos.length;
+          const cand = candidatos[idx];
+          if (!usados[cand.id]) { escolhido = cand; rotacaoIndex = idx + 1; break; }
+        }
+
+        if (escolhido) { usados[escolhido.id] = true; escolhidos.push(escolhido); }
+      }
+
+      if (escolhidos.length < qtd) {
+        for (const kit of AFILIADOS) {
+          if (escolhidos.length >= qtd) break;
+          if (!usados[kit.id]) { usados[kit.id] = true; escolhidos.push(kit); }
+        }
+      }
+
+      return escolhidos.slice(0, qtd);
+    }
+
+    function produtosExtrasParaCard(item, jaMostrados, quantidade) {
+      const qtd = quantidade || 3;
+      const usadosIds = {};
+      (jaMostrados || []).forEach(p => { usadosIds[p.id] = true; });
+
+      const restantes = AFILIADOS.filter(k => !usadosIds[k.id]);
+      if (restantes.length === 0) return [];
+
+      const resultado = [];
+      for (let i = 0; i < qtd && i < restantes.length; i++) {
+        const idx = (rotacaoIndex + i) % restantes.length;
+        resultado.push(restantes[idx]);
+      }
+      rotacaoIndex += qtd;
+      return resultado;
+    }
+
+    function linkCompraParaItem(item) {
+      const kitCompravel = AFILIADOS.find(k => {
+        if (item.categoria === 'produto') return k.categoria === 'cuidados';
+        if (item.categoria === 'kit') return k.categoria === 'cuidados';
+        if (item.categoria === 'ferramentas') return k.categoria === 'ferramentas';
+        return false;
+      }) || AFILIADOS[0];
+
+      return kitCompravel ? kitCompravel.link : '#';
+    }
+
+    function renderProdutoItem(kit) {
+      const emojiMap = { coloracao: '🎨', cuidados: '💧', ferramentas: '✂️' };
+      const thumbHtml = kit.imagem
+        ? `<img class="product-thumb" src="${kit.imagem}" alt="${kit.nome}" loading="lazy"
+                onerror="this.outerHTML='<div class=\\'product-thumb placeholder\\'>${emojiMap[kit.categoria] || '✨'}</div>'">`
+        : `<div class="product-thumb placeholder">${emojiMap[kit.categoria] || '✨'}</div>`;
+
+      return `
+        <a class="product-item" href="${kit.link}" target="_blank" rel="noopener noreferrer">
+          ${thumbHtml}
+          <div class="product-info">
+            <h4>${kit.nome}</h4>
+            <p>${kit.produtos}</p>
+          </div>
+          <div class="product-link-icon">↗</div>
+        </a>
+      `;
+    }
+
+    function getBaseUrl() {
+      if (URL_PUBLICA_MANUAL && URL_PUBLICA_MANUAL.trim() !== '') {
+        return URL_PUBLICA_MANUAL.split('?')[0];
+      }
+      if (window.location.protocol === 'file:') {
+        return window.location.href.split('?')[0];
+      }
+      return window.location.origin + window.location.pathname;
+    }
+
+    function buildItemUrl(id, refIndex) {
+      const base = getBaseUrl();
+      const params = [];
+      if (id) params.push('item=' + encodeURIComponent(id));
+      if (typeof refIndex === 'number' && refIndex >= 0) params.push('ref=' + refIndex);
+      return params.length ? `${base}?${params.join('&')}` : base;
+    }
+
+    function getItemById(id) { return ITENS.find(c => c.id === id); }
+
+    // ===== DOM =====
+    const galleryEl = document.getElementById('gallery');
+    const cardArea = document.getElementById('cardArea');
+    const filtrosEl = document.getElementById('filtros');
+    const filtrosScrollEl = document.getElementById('filtrosScroll');
+    const miniLogoBtn = document.getElementById('miniLogoBtn');
+    const headerSub = document.getElementById('headerSub');
+
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalContent = document.getElementById('modalContent');
+    const modalBackBtn = document.getElementById('modalBackBtn');
+    const modalHeaderCat = document.getElementById('modalHeaderCat');
+    const modalHeaderTitle = document.getElementById('modalHeaderTitle');
+    const modalHeaderSub = document.getElementById('modalHeaderSub');
+    const modalHeaderCount = document.getElementById('modalHeaderCount');
+    const modalSectionLabel = document.getElementById('modalSectionLabel');
+    const modalVariacoes = document.getElementById('modalVariacoes');
+
+    let filtroAtual = 'todos';
+    let itemAtualModal = null;
+    let qrInstance = null;
+    let qrLojaInstance = null;
+    let produtosCardAtual = [];
+    let rotacaoTimer = null;
+
+    // ===== GALERIA =====
+    function renderGallery() {
+      let itensFiltrados;
+
+      if (filtroAtual === 'todos') itensFiltrados = shuffleArray(ITENS);
+      else itensFiltrados = ITENS.filter(i => i.categoria === filtroAtual);
+
+      if (itensFiltrados.length === 0) {
+        galleryEl.innerHTML = '<div class="loading-msg">Nenhum item nesta categoria</div>';
+        return;
+      }
+
+      galleryEl.innerHTML = itensFiltrados.map((item, idx) => {
+        const isSimulacao = CATS_SIMULACAO.includes(item.categoria);
+        const delay = Math.min(idx * 0.035, 0.7).toFixed(2);
+        const badgeHtml = isSimulacao
+          ? `<span class="hair-card-title">${item.nome}</span>`
+          : `<span class="hair-card-badge-shop">Ver produto ↗</span>`;
+
+        return `
+          <div class="hair-card" data-item-id="${item.id}" data-categoria="${item.categoria}"
+               tabindex="0" role="button" aria-label="${item.nome}"
+               style="animation-delay: ${delay}s">
+            <div class="hair-card-img-wrap">
+              <img src="${item.imagem}" alt="${item.nome}" loading="lazy"
+                   class="${item.altura}" onerror="this.src='${IMG_FALLBACK}'">
+              ${badgeHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.hair-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const item = getItemById(card.dataset.itemId);
+          if (item) abrirItem(item);
+        });
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const item = getItemById(card.dataset.itemId);
+            if (item) abrirItem(item);
+          }
+        });
+      });
+
+      iniciarRotacao();
+    }
+
+    function iniciarRotacao() {
+      if (rotacaoTimer) { clearTimeout(rotacaoTimer); rotacaoTimer = null; }
+      const agendarProxima = () => {
+        rotacaoTimer = setTimeout(() => {
+          if (!modalOverlay.classList.contains('active')) rotacionarCards();
+          agendarProxima();
+        }, intervaloAleatorio());
+      };
+      agendarProxima();
+    }
+
+    function rotacionarCards() {
+      const cards = document.querySelectorAll('.hair-card');
+      if (cards.length === 0) return;
+
+      cards.forEach(card => {
+        const categoriaAtual = card.dataset.categoria;
+        const itemAtualId = card.dataset.itemId;
+        const pool = ITENS_POR_CATEGORIA[categoriaAtual];
+        if (!pool || pool.length < 2) return;
+
+        let novoItem = null;
+        for (let tent = 0; tent < 8; tent++) {
+          const cand = pool[Math.floor(Math.random() * pool.length)];
+          if (cand.id !== itemAtualId) { novoItem = cand; break; }
+        }
+        if (!novoItem) return;
+
+        const img = card.querySelector('img');
+        const badgeTitle = card.querySelector('.hair-card-title');
+        const badgeShop = card.querySelector('.hair-card-badge-shop');
+
+        const pre = new Image();
+        pre.onload = () => {
+          img.classList.add('trocando');
+          if (badgeTitle) badgeTitle.style.opacity = '0';
+          if (badgeShop) badgeShop.style.opacity = '0';
+
+          setTimeout(() => {
+            img.src = novoItem.imagem;
+            img.alt = novoItem.nome;
+            img.classList.remove('h-md', 'h-lg', 'h-xl');
+            img.classList.add(novoItem.altura || getAlturaAleatoria());
+
+            card.dataset.itemId = novoItem.id;
+            card.setAttribute('aria-label', novoItem.nome);
+
+            if (CATS_SIMULACAO.includes(novoItem.categoria)) {
+              if (badgeShop) badgeShop.remove();
+              if (!badgeTitle) {
+                const span = document.createElement('span');
+                span.className = 'hair-card-title';
+                span.textContent = novoItem.nome;
+                card.querySelector('.hair-card-img-wrap').appendChild(span);
+              } else {
+                badgeTitle.textContent = novoItem.nome;
+              }
+            } else {
+              if (badgeTitle) badgeTitle.remove();
+              if (!badgeShop) {
+                const span = document.createElement('span');
+                span.className = 'hair-card-badge-shop';
+                span.textContent = 'Ver produto ↗';
+                card.querySelector('.hair-card-img-wrap').appendChild(span);
+              }
+            }
+
+            img.classList.remove('trocando');
+          }, 180);
+        };
+        pre.onerror = () => { };
+        pre.src = novoItem.imagem;
+      });
+    }
+
+    // ===== FILTROS =====
+    filtrosEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filtro-btn');
+      if (!btn) return;
+      if (btn.dataset.filtro === filtroAtual) return;
+      filtroAtual = btn.dataset.filtro;
+      document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      if (filtrosScrollEl) {
+        const btnRect = btn.getBoundingClientRect();
+        const wrapRect = filtrosScrollEl.getBoundingClientRect();
+        if (btnRect.left < wrapRect.left || btnRect.right > wrapRect.right) {
+          filtrosScrollEl.scrollTo({ left: btn.offsetLeft - 40, behavior: 'smooth' });
+        }
+      }
+
+      if (headerSub && SUBTITULOS[filtroAtual]) {
+        headerSub.style.opacity = '0';
+        setTimeout(() => {
+          headerSub.textContent = SUBTITULOS[filtroAtual];
+          headerSub.style.opacity = '0.7';
+        }, 150);
+      }
+
+      renderGallery();
+    });
+
+    if (miniLogoBtn) {
+      miniLogoBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // ===== ABRIR ITEM =====
+    function abrirItem(item) {
+      if (CATS_SIMULACAO.includes(item.categoria)) {
+        openModalVariacoes(item);
+      } else {
+        openCardLoja(item);
+      }
+    }
+
+    // ===== MODAL VARIAÇÕES =====
+    function openModalVariacoes(item) {
+      itemAtualModal = item;
+
+      modalVariacoes.classList.remove('hidden');
+      modalSectionLabel.classList.remove('hidden');
+      modalHeaderCount.classList.remove('hidden');
+      cardArea.classList.add('hidden');
+      cardArea.innerHTML = '';
+
+      modalHeaderCat.textContent = LABELS[item.categoria] || item.categoria;
+      modalHeaderTitle.textContent = item.nome;
+      modalHeaderSub.textContent = item.titulo || '';
+      modalHeaderCount.textContent = item.variantes.length + ' refs';
+      modalSectionLabel.textContent = 'Toque na imagem para abrir';
+
+      modalVariacoes.innerHTML = item.variantes.map((url, idx) => {
+        const altura = getAlturaAleatoria();
+        const delay = Math.min(idx * 0.04, 0.5).toFixed(2);
+        return `
+          <div class="variacao-card" data-ref-index="${idx}" data-url="${url}"
+               tabindex="0" role="button" aria-label="Referência ${idx + 1}"
+               style="animation-delay: ${delay}s">
+            <img src="${url}" alt="Referência ${idx + 1}" loading="lazy"
+                 class="${altura}" onerror="this.src='${IMG_FALLBACK}'">
+          </div>
+        `;
+      }).join('');
+
+      modalVariacoes.querySelectorAll('.variacao-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const idx = parseInt(card.dataset.refIndex, 10);
+          const url = item.variantes[idx];
+          openCardDetalhado(item, idx, url);
+        });
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+        });
+      });
+
+      modalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      modalContent.scrollTop = 0;
+    }
+
+    function closeModalVariacoes() {
+      modalOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+      itemAtualModal = null;
+      if (qrInstance) { qrInstance.clear(); qrInstance = null; }
+      if (qrLojaInstance) { qrLojaInstance.clear(); qrLojaInstance = null; }
+      closeZoom();
+    }
+
+    modalBackBtn.addEventListener('click', () => {
+      if (!cardArea.classList.contains('hidden')) {
+        const item = itemAtualModal;
+        cardArea.classList.add('hidden');
+        cardArea.innerHTML = '';
+        if (qrInstance) { qrInstance.clear(); qrInstance = null; }
+        if (qrLojaInstance) { qrLojaInstance.clear(); qrLojaInstance = null; }
+
+        if (item && !CATS_SIMULACAO.includes(item.categoria)) {
+          closeModalVariacoes();
+          return;
+        }
+
+        modalVariacoes.classList.remove('hidden');
+        modalSectionLabel.classList.remove('hidden');
+        modalHeaderCount.classList.remove('hidden');
+        if (itemAtualModal) {
+          modalHeaderCount.textContent = itemAtualModal.variantes.length + ' refs';
+        }
+        modalContent.scrollTop = 0;
+        return;
+      }
+      closeModalVariacoes();
+    });
+
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay && cardArea.classList.contains('hidden')) {
+        closeModalVariacoes();
+      }
+    });
+
+    // ===== CARD DETALHADO =====
+    function openCardDetalhado(item, refIndex, imagemUrl) {
+      modalVariacoes.classList.add('hidden');
+      modalSectionLabel.classList.add('hidden');
+      modalHeaderCount.classList.add('hidden');
+
+      modalHeaderCat.textContent = LABELS[item.categoria] || item.categoria;
+      modalHeaderTitle.textContent = item.nome;
+      modalHeaderSub.textContent = item.titulo || '';
+
+      renderCardDetalhado(item, refIndex, imagemUrl);
+      modalContent.scrollTop = 0;
+    }
+
+    function renderCardDetalhado(item, refIndex, imagemUrl) {
+      const prompt = gerarPrompt(item);
+      const produtos = produtosParaCard(item, 3);
+      produtosCardAtual = produtos;
+
+      const miniaturasHtml = item.variantes.length > 1 ? `
+        <div class="fase2-titulo">outras referências</div>
+        <div class="galeria-loja" id="variacoesRapidas">
+          ${item.variantes.map((v, i) => `
+            <img src="${v}" alt="Ref ${i + 1}" data-url="${v}" data-index="${i}" loading="lazy"
+                 class="${i === refIndex ? 'active' : ''}" onerror="this.style.display='none'">
+          `).join('')}
+        </div>
+      ` : '';
+
+      const productsHtml = produtos.map(renderProdutoItem).join('');
+
+      cardArea.innerHTML = `
+  <div class="card-section">
+
+    <div class="bloco-ref">
+      <div class="card-img-wrap" id="imgWrapDetalhe">
+        <img class="card-hair-img" id="imagemPrincipal" src="${imagemUrl}" alt="${item.nome}"
+             onerror="this.src='${IMG_FALLBACK}'">
+        <button class="btn-qr-float" id="btnQrDetalhe" aria-label="Ver QR" title="Ver QR">🔲</button>
+      </div>
+      <div class="prompt-integrado" id="promptIntegrado">
+        <div class="prompt-integrado-titulo">Prompt para IA</div>${prompt}
+      </div>
+    </div>
+
+    <div class="qr-expansivel" id="qrExpansivelDetalhe">
+      <div class="qr-wrap">
+        <div id="qrcode"></div>
+        <div class="qr-hint">Aponte a câmera do celular<br>para abrir esta referência</div>
+      </div>
+    </div>
+
+    <h2 class="card-hair-name">${item.nome}</h2>
+    <p class="card-hair-desc">${item.descricao}</p>
+
+    ${miniaturasHtml}
+
+    <button class="btn-action etapa-ativa" id="copiarPromptBtn" data-etapa="1" type="button">
+      <span class="etapa-num"><span>1</span></span> 📋 Copiar prompt
+    </button>
+
+    <button class="btn-secondary" id="salvarImagemBtn" data-etapa="2" type="button">
+      <span class="etapa-num"><span>2</span></span> 🖼️ Salvar imagem
+    </button>
+
+    <a class="btn-secondary" id="abrirGeminiBtn" data-etapa="3"
+       href="https://gemini.google.com" target="_blank" rel="noopener noreferrer">
+      <span class="etapa-num"><span>3</span></span> ✨ Abrir Gemini
+    </a>
+
+    <div class="etapa-dica visivel" id="etapaDica">Comece copiando o prompt</div>
+
+    <div class="fase2-titulo">Como usar</div>
+    <div class="instructions">
+      <li>Toque em <strong>Copiar prompt</strong>.</li>
+      <li>Toque em <strong>Salvar imagem</strong>.</li>
+      <li>Toque em <strong>Abrir Gemini</strong>.</li>
+      <li>Anexe <strong>sua foto</strong> e a <strong>imagem salva</strong>.</li>
+      <li>Cole o <strong>prompt</strong> e gere.</li>
+    </div>
+
+    <div class="products-title">Recomendados para você</div>
+    <div class="products-sub">selecionados para este estilo</div>
+    <div id="productsList">${productsHtml}</div>
+
+    <div id="posSimArea"></div>
+  </div>
+`;
+
+      cardArea.classList.remove('hidden');
+
+      // ===== ETAPAS =====
+      (function setupEtapas() {
+        const dica = document.getElementById('etapaDica');
+        const btn1 = document.getElementById('copiarPromptBtn');
+        const btn2 = document.getElementById('salvarImagemBtn');
+        const btn3 = document.getElementById('abrirGeminiBtn');
+        const botoes = { 1: btn1, 2: btn2, 3: btn3 };
+
+        const DICAS = {
+          1: 'Comece copiando o prompt',
+          2: 'Agora salve a imagem',
+          3: 'Por último, abra o Gemini e cole o prompt',
+          4: 'Tudo pronto · siga as instruções na IA'
+        };
+
+        function avancar(etapaAtual) {
+          const atual = botoes[etapaAtual];
+          if (atual && !atual.classList.contains('etapa-concluida')) {
+            atual.classList.remove('etapa-ativa');
+            atual.classList.add('etapa-concluida');
+          }
+          const prox = botoes[etapaAtual + 1];
+          if (prox && !prox.classList.contains('etapa-concluida')) {
+            prox.classList.add('etapa-ativa');
+          }
+          if (dica) {
+            dica.classList.remove('visivel');
+            setTimeout(() => {
+              dica.textContent = DICAS[etapaAtual + 1] || DICAS[4];
+              dica.classList.add('visivel');
+            }, 180);
+          }
+        }
+
+        if (btn1) btn1.addEventListener('click', () => {
+          if (!btn1.classList.contains('etapa-concluida')) avancar(1);
+        });
+
+        if (btn2) btn2.addEventListener('click', () => {
+          const imgAtual = document.getElementById('imagemPrincipal');
+          const urlImagem = imgAtual ? imgAtual.src : imagemUrl;
+          const nomeArquivo = (item.nome || 'referencia').replace(/\s+/g, '-').toLowerCase() + '.jpg';
+
+          const a = document.createElement('a');
+          a.href = urlImagem;
+          a.download = nomeArquivo;
+          a.rel = 'noopener';
+          a.style.display = 'none';
+          document.body.appendChild(a);
+
+          try { a.click(); }
+          catch (err) { window.open(urlImagem, '_blank', 'noopener'); }
+
+          setTimeout(() => {
+            if (a.parentNode) a.parentNode.removeChild(a);
+          }, 800);
+
+          if (btn2.classList.contains('etapa-ativa')) avancar(2);
+        });
+
+        if (btn3) btn3.addEventListener('click', () => {
+          if (btn3.classList.contains('etapa-ativa')) avancar(3);
+        });
+      })();
+
+      // ===== IMAGEM: ZOOM + QR =====
+      const imgWrap = document.getElementById('imgWrapDetalhe');
+      const btnQr = document.getElementById('btnQrDetalhe');
+      const qrExpansivel = document.getElementById('qrExpansivelDetalhe');
+      const qrEl = document.getElementById('qrcode');
+
+      if (imgWrap) {
+        imgWrap.addEventListener('click', (e) => {
+          if (e.target.closest('#btnQrDetalhe')) return;
+          const img = document.getElementById('imagemPrincipal');
+          if (img) openZoom(img.src, item.nome);
+        });
+      }
+
+      if (btnQr && qrExpansivel && qrEl) {
+        btnQr.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const abrindo = !qrExpansivel.classList.contains('aberto');
+
+          if (abrindo) {
+            qrExpansivel.classList.add('aberto');
+
+            const imgAtual = document.getElementById('imagemPrincipal');
+            const refAtual = item.variantes.indexOf(imgAtual ? imgAtual.src : imagemUrl);
+            const idxAtual = refAtual >= 0 ? refAtual : refIndex;
+            const urlQR = buildItemUrl(item.id, idxAtual);
+
+            if (!qrInstance) {
+              qrEl.innerHTML = '';
+              try {
+                qrInstance = new QRCode(qrEl, {
+                  text: urlQR,
+                  width: 140, height: 140,
+                  colorDark: '#0a0808', colorLight: '#ffffff',
+                  correctLevel: QRCode.CorrectLevel.M
+                });
+              } catch (err) {
+                console.warn('Falha ao gerar QR:', err);
+                qrEl.innerHTML = '<div style="color:#a89e93;font-size:0.7rem;padding:1rem;">QR indisponível</div>';
+              }
+            }
+          } else {
+            qrExpansivel.classList.remove('aberto');
+          }
+        });
+      }
+
+      // ===== CÓPIA PROMPT =====
+      const copiarBtn = document.getElementById('copiarPromptBtn');
+      if (copiarBtn) {
+        copiarBtn.addEventListener('click', async () => {
+          let ok = false;
+          try { await navigator.clipboard.writeText(prompt); ok = true; }
+          catch (err) {
+            try {
+              const ta = document.createElement('textarea');
+              ta.value = prompt;
+              ta.style.position = 'fixed'; ta.style.opacity = '0';
+              document.body.appendChild(ta); ta.select();
+              document.execCommand('copy');
+              document.body.removeChild(ta);
+              ok = true;
+            } catch (e2) { console.warn('Cópia falhou:', e2); }
+          }
+          if (!ok) return;
+          if (!copiarBtn.dataset.feedback) {
+            copiarBtn.dataset.feedback = '1';
+            const txt = copiarBtn.innerHTML;
+            copiarBtn.innerHTML = '✓ Prompt copiado!';
+            setTimeout(() => { copiarBtn.innerHTML = txt; delete copiarBtn.dataset.feedback; }, 2000);
+          }
+        });
+      }
+
+      // ===== PÓS-SIMULAÇÃO =====
+      const abrirGemini = document.getElementById('abrirGeminiBtn');
+      const posSimArea = document.getElementById('posSimArea');
+      if (abrirGemini && posSimArea) {
+        abrirGemini.addEventListener('click', () => {
+          if (posSimArea.dataset.injetado === '1') return;
+          posSimArea.dataset.injetado = '1';
+          const extras = produtosExtrasParaCard(item, produtosCardAtual, 3);
+          if (extras.length === 0) return;
+          posSimArea.innerHTML = `
+            <div class="pos-sim-block">
+              <div class="pos-sim-title">Gostou do resultado?</div>
+              <div class="pos-sim-sub">Veja como manter esse visual no dia a dia</div>
+              ${extras.map(renderProdutoItem).join('')}
+            </div>
+          `;
+        });
+      }
+
+      // ===== MINIATURAS =====
+      const variacoesRapidas = document.getElementById('variacoesRapidas');
+      if (variacoesRapidas) {
+        variacoesRapidas.addEventListener('click', (e) => {
+          const img = e.target.closest('img');
+          if (!img) return;
+          const novaUrl = img.dataset.url;
+          const novoIndex = parseInt(img.dataset.index, 10);
+          if (novaUrl) {
+            const principal = document.getElementById('imagemPrincipal');
+            principal.style.opacity = '0';
+            setTimeout(() => { principal.src = novaUrl; principal.style.opacity = '1'; }, 150);
+
+            variacoesRapidas.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+            img.classList.add('active');
+
+            const novaUrlCompartilhavel = buildItemUrl(item.id, novoIndex);
+            if (qrInstance && qrInstance.clear) {
+              qrInstance.clear();
+              qrInstance.makeCode(novaUrlCompartilhavel);
+            }
+          }
+        });
+      }
+    }
+
+    // ===== CARD DE LOJA =====
+    function openCardLoja(item) {
+      itemAtualModal = item;
+
+      modalVariacoes.classList.add('hidden');
+      modalSectionLabel.classList.add('hidden');
+      modalHeaderCount.classList.add('hidden');
+
+      modalHeaderCat.textContent = LABELS[item.categoria] || item.categoria;
+      modalHeaderTitle.textContent = item.nome;
+      modalHeaderSub.textContent = item.titulo || '';
+
+      renderCardLoja(item);
+
+      modalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      modalContent.scrollTop = 0;
+    }
+
+    function renderCardLoja(item) {
+      const linkCompra = linkCompraParaItem(item);
+
+      const relacionados = ITENS
+        .filter(i => i.categoria === item.categoria && i.id !== item.id)
+        .slice(0, 3);
+
+      const relacionadosHtml = relacionados.map(rel => `
+        <a class="product-item" href="#" data-rel-id="${rel.id}">
+          <img class="product-thumb" src="${rel.imagem}" alt="${rel.nome}" loading="lazy"
+               onerror="this.style.display='none'">
+          <div class="product-info">
+            <h4>${rel.nome}</h4>
+            <p>${rel.titulo}</p>
+          </div>
+          <div class="product-link-icon">→</div>
+        </a>
+      `).join('');
+
+      const variantesLoja = [];
+      const vistosLoja = {};
+      (item.variantes || []).forEach(v => {
+        const url = (typeof v === 'object' && v !== null) ? v.img : v;
+        if (url && !vistosLoja[url] && variantesLoja.length < 4) {
+          vistosLoja[url] = true;
+          variantesLoja.push(url);
+        }
+      });
+      if (item.imagem && !vistosLoja[item.imagem]) variantesLoja.unshift(item.imagem);
+
+      const galeriaLojaHtml = variantesLoja.length > 1 ? `
+        <div class="galeria-loja" id="galeriaLoja">
+          ${variantesLoja.map((v, i) => `
+            <img src="${v}" alt="Vista ${i + 1}" data-url="${v}"
+                 class="${i === 0 ? 'active' : ''}"
+                 onerror="this.style.display='none'">
+          `).join('')}
+        </div>
+      ` : '';
+
+      cardArea.innerHTML = `
+        <div class="card-section">
+
+          <div class="bloco-ref">
+            <div class="card-img-wrap" id="imgWrapLoja">
+              <img class="card-hair-img" id="imgPrincipalLoja" src="${item.imagem}" alt="${item.nome}"
+                   onerror="this.src='${IMG_FALLBACK}'">
+              <button class="btn-qr-float" id="btnQrLoja" aria-label="Ver QR" title="Ver QR">🔲</button>
+            </div>
+          </div>
+
+          <div class="qr-expansivel" id="qrExpansivelLoja">
+            <div class="qr-wrap">
+              <div id="qrLoja"></div>
+              <div class="qr-hint">Aponte a câmera do celular<br>para abrir o link de compra</div>
+            </div>
+          </div>
+
+          <h2 class="card-hair-name">${item.nome}</h2>
+          <p class="card-hair-desc">${item.descricao}</p>
+
+          ${galeriaLojaHtml}
+
+          <a class="btn-buy" href="${linkCompra}" target="_blank" rel="noopener noreferrer">
+            <span class="icon">🛒</span> Ver no Mercado Livre
+          </a>
+          <div class="btn-buy-hint">Compra segura · frete calculado no site</div>
+
+          ${relacionados.length > 0 ? `
+            <div class="products-title">Você também pode gostar</div>
+            <div class="products-sub">outras opções de ${LABELS[item.categoria].toLowerCase()}</div>
+            ${relacionadosHtml}
+          ` : ''}
+        </div>
+      `;
+
+      cardArea.classList.remove('hidden');
+
+      const imgWrap = document.getElementById('imgWrapLoja');
+      const btnQr = document.getElementById('btnQrLoja');
+      const qrExpansivel = document.getElementById('qrExpansivelLoja');
+      const qrLojaEl = document.getElementById('qrLoja');
+
+      if (imgWrap) {
+        imgWrap.addEventListener('click', (e) => {
+          if (e.target.closest('#btnQrLoja')) return;
+          const img = document.getElementById('imgPrincipalLoja');
+          if (img) openZoom(img.src, item.nome);
+        });
+      }
+
+      if (btnQr && qrExpansivel && qrLojaEl) {
+        btnQr.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const abrindo = !qrExpansivel.classList.contains('aberto');
+
+          if (abrindo) {
+            qrExpansivel.classList.add('aberto');
+
+            if (!qrLojaInstance) {
+              qrLojaEl.innerHTML = '';
+              try {
+                qrLojaInstance = new QRCode(qrLojaEl, {
+                  text: linkCompra,
+                  width: 140, height: 140,
+                  colorDark: '#0a0808', colorLight: '#ffffff',
+                  correctLevel: QRCode.CorrectLevel.M
+                });
+              } catch (err) {
+                console.warn('Falha ao gerar QR da loja:', err);
+                qrLojaEl.innerHTML = '<div style="color:#a89e93;font-size:0.7rem;padding:1rem;">QR indisponível</div>';
+              }
+            }
+          } else {
+            qrExpansivel.classList.remove('aberto');
+          }
+        });
+      }
+
+      const galeriaLoja = document.getElementById('galeriaLoja');
+      if (galeriaLoja) {
+        galeriaLoja.addEventListener('click', (e) => {
+          const img = e.target.closest('img');
+          if (!img) return;
+          const principal = document.getElementById('imgPrincipalLoja');
+          if (principal && img.dataset.url) {
+            principal.style.opacity = '0';
+            setTimeout(() => { principal.src = img.dataset.url; principal.style.opacity = '1'; }, 150);
+            galeriaLoja.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+            img.classList.add('active');
+          }
+        });
+      }
+
+      cardArea.querySelectorAll('[data-rel-id]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          const rel = getItemById(el.dataset.relId);
+          if (rel) {
+            if (qrLojaInstance) { qrLojaInstance.clear(); qrLojaInstance = null; }
+            openCardLoja(rel);
+          }
+        });
+      });
+    }
+
+    // ===== INIT =====
+    function init() {
+      const params = new URLSearchParams(window.location.search);
+      const itemId = params.get('item');
+      const refIndex = params.get('ref');
+
+      if (itemId) {
+        const item = getItemById(itemId);
+        if (item) {
+          const idx = refIndex !== null ? parseInt(refIndex, 10) : 0;
+
+          if (CATS_SIMULACAO.includes(item.categoria)) {
+            const url = item.variantes[idx] || item.imagem;
+            itemAtualModal = item;
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            openCardDetalhado(item, idx, url);
+            document.title = `${item.nome} · HairOS`;
+          } else {
+            openCardLoja(item);
+            document.title = `${item.nome} · HairOS`;
+          }
+        } else {
+          renderGallery();
+        }
+      } else {
+        renderGallery();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+
+</html>
